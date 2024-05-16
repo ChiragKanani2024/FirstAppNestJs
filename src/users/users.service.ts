@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
 
 @Injectable()
 export class UsersService {
@@ -40,9 +41,13 @@ export class UsersService {
 
   findAll(role: string) {
     if (role) {
-      return this.users.filter((item) => {
+      const data = this.users.filter((item) => {
         return item.role.toLowerCase() == role.toLowerCase();
       });
+      if (!data.length) {
+        throw new NotFoundException("Enter Proper role")
+      }
+      return data;
     }
     return this.users;
   }
@@ -56,7 +61,11 @@ export class UsersService {
   }
 
   findOne(id: number) {
-    return this.users.find((item) => item.id == id);
+    const user = this.users.find((item) => item.id == id) 
+    if (!user) {
+      throw new NotFoundException("User Not Found")
+    }
+    return user;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
